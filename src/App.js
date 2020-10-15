@@ -1,85 +1,85 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
-import { Col, Container, Row } from "react-bootstrap";
-import ContactForm from "./components/ContactForm";
-import ContactList from "./components/ContactList";
-import database from "./firebase";
+import Contacts from "./components/Contacts";
+import Login from "./components/Login";
+import SignUp from "./components/SignUp";
+import fire from "./firebase";
+import { Switch, Route, Redirect} from "react-router-dom";
 
 function App() {
-  const [contacts, setContacts] = useState([]);
-  const [contactToUpdate, setContactToUpdate] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    database.ref("contacts/").on("value", function (snapshot) {
-      setContacts([]);
-      snapshot.forEach(function (childSnapshot) {
-        var contact = {
-          ...childSnapshot.val(),
-          key: childSnapshot.key,
-        };
-        setContacts((prevState) => [...prevState, contact]);
-      });
+    fire.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setLoggedIn(true);
+      } else {
+        setLoggedIn(false);
+      }
     });
   }, []);
 
-  const addContact = (contact) => {
-    database
-      .ref()
-      .child("contacts")
-      .push(contact, (error) => {
-        if (error) {
-          alert("Contact registration failed");
-        } else {
-          alert("Contact registered successfully");
-        }
+  const LogIn = (user) => {
+    fire
+      .auth()
+      .signInWithEmailAndPassword(user.username, user.password)
+      .then(() => {
+        setLoggedIn(true);
+      })
+      .catch((err) => {
+        const error = {
+          code: err.code,
+          message: err.message,
+        };
+        console.log(error);
       });
   };
 
-  const editContact = (contact) => {
-    database.ref("contacts/" + contact.key).set(contact, (err) => {
-      if (err) {
-        alert("Modification failed");
-      } else {
-        alert("Modification succeeded");
-      }
-    });
+  const Signup = (user) => {
+    fire
+      .auth()
+      .createUserWithEmailAndPassword(user.username, user.password)
+      .then(() => {
+        setLoggedIn(true);
+      })
+      .catch((err) => {
+        const error = {
+          code: err.code,
+          message: err.message,
+        };
+        console.log(error);
+      });
   };
 
-  const deleteContact = (key) => {
-    database.ref("contacts/" + key).remove();
-  };
-
-  const handleUpdate = (index) => {
-    setContactToUpdate(contacts[index]);
-  };
-
-  const resetForm = () => {
-    setContactToUpdate(null);
+  const signOut = () => {
+    fire
+      .auth()
+      .signOut()
+      .then(() => {
+        setLoggedIn(false);
+      });
   };
 
   return (
-    <Container>
-      <Row>
-        <h1 className="contact-title">Contact Register</h1>
-      </Row>
-      <Row>
-        <Col md={5}>
-          <ContactForm
-            addContact={addContact}
-            editContact={editContact}
-            contactToUpdate={contactToUpdate}
-            resetForm={resetForm}
+    <Switch>
+      {loggedIn ? (
+        <Route
+          exact
+          path="/"
+          component={() => <Contacts signOut={signOut} />}
+        />
+      ) : (
+        <>
+          <Route
+            exact
+            path="/"
+            component={(routeProps) => <Login LogIn={LogIn} {...routeProps} />}
           />
-        </Col>
-        <Col md={7}>
-          <ContactList
-            contacts={contacts}
-            handleUpdate={handleUpdate}
-            deleteContact={deleteContact}
-          />
-        </Col>
-      </Row>
-    </Container>
+          <Route path="/signup" component={() => <SignUp Signup={Signup} />} />
+        </>
+      )}
+      <Redirect to="/" />
+    </Switch>
   );
 }
 

@@ -17,7 +17,7 @@ const ContactForm = (props) => {
     } else {
       setValues(initialValues);
     }
-  }, [props.contactToUpdate, initialValues]);
+  }, [props.contactToUpdate]);
 
   const handleChange = (e) => {
     setValues({

@@ -9,3 +9,20 @@
     font-weight: 700;
     color: #275f70;
 }
+
+.form-container{
+  width: 500px !important;
+  text-align: center;
+  padding: 4rem;
+}
+a {
+  text-decoration: none !important;
+  color:  #ffffff !important;
+}
+
+.signout-btn {
+  position: absolute;
+  top: .5rem;
+  right: 1rem;
+  
+}

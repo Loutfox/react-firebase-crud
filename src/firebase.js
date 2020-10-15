@@ -5,12 +5,11 @@ var firebaseConfig = {
     // Add your Firebase configuration  https://firebase.google.com/docs/web/setup
   };
   // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
+  var fire = firebase.initializeApp(firebaseConfig);
   
   //Get a reference to the database service
-  var database = firebase.database();
 
-  export default database;
+  export default fire;
 
 
 
