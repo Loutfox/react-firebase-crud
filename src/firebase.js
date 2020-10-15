@@ -6,8 +6,6 @@ var firebaseConfig = {
   };
   // Initialize Firebase
   var fire = firebase.initializeApp(firebaseConfig);
-  
-  //Get a reference to the database service
 
   export default fire;
 
